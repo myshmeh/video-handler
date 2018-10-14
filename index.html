@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>video handler</title>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+</head>
+
+<body>
+    <h1>Hey</h1>
+    <div class="container">
+        <div class="row">
+            <video id="video" width="640" height="480" controls>
+                <source src="videos/video0.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="row">
+            <button class="col-6 btn btn-warning" onclick="video.playPrevious()">previous</button>
+            <button class="col-6 btn btn-info" onclick="video.playNext()">next</button>
+        </div>
+    
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Table of Contents</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr onclick="changeVideoTo('video', 'videos/video0.mp4')">
+                    <th scope="row">1</th>
+                    <td>Introduction</td>
+                </tr>
+                <tr onclick="changeVideoTo('video', 'videos/video1.mp4')">
+                    <th scope="row">2</th>
+                    <td>Definitions</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // == going class ==
+        class VideoHandler{
+            constructor(videoId, videoList){
+                this.videoId = videoId;
+                this.videoList = videoList;
+
+                this.video = document.getElementById(this.videoId);
+                this.video.setAttribute("width", this.video.parentElement.offsetWidth);
+                this.video.setAttribute("height", this.video.parentElement.offsetHeight);
+                this.video.onended = function(){
+                    this.playNext();
+                }
+            }
+
+            hey(){
+                alert('HEY');
+            }
+            
+            playNext(){
+                let v = this.video;
+                let index = this.videoList.findIndex(function(e){
+                    let c = v.children[0];
+                    console.log("comparing " + e + " v. " + c.getAttribute("src"));
+                    return e == c.getAttribute("src");
+                });
+
+                //exception handling
+                if(index < 0) return false;
+                
+                this.changeTo((index+1) % this.videoList.length);
+            }
+
+            playPrevious(){
+                let v = this.video;
+                let index = this.videoList.findIndex(function(e){
+                    let c = v.children[0];
+                    console.log("comparing " + e + " v. " + c.getAttribute("src"));
+                    return e == c.getAttribute("src");
+                });
+
+                //exception handling
+                if(index < 0) return false;
+                
+                this.changeTo( Math.abs((index-1) % this.videoList.length) );
+            }
+
+            changeTo(videoIndex){
+                this.video.children[0].src = this.videoList[videoIndex];
+                this.video.load();
+                this.video.oncanplay = function () {
+                    this.play();
+                };
+            }
+        }
+
+        // == main ==
+        const videolist1 = [
+            'videos/video0.mp4',
+            'videos/video1.mp4'
+        ];
+
+        // (function onload(){
+        //     // initVideo("video", videolist1);
+        //     let video = new VideoHandler('video', videolist1);
+        // })();
+        let video = new VideoHandler('video', videolist1);
+
+        // == function declarations ==
+        function initVideo(videoId, videoList){
+            let v = document.getElementById(videoId);
+            v.setAttribute("width", v.parentElement.offsetWidth);
+            v.setAttribute("height", v.parentElement.offsetHeight);
+            v.onended = function(){
+                playNextVideo(videoId, videolist1);
+            }
+        }
+
+        function playNextVideo(videoId, videoList){
+            let v = document.getElementById(videoId);
+            let index = videoList.findIndex(function(e){
+                console.log("comparing " + e + " v. " + v.children[0].getAttribute("src"));
+                return e == v.children[0].getAttribute("src");
+            });
+
+            //exception handling
+            if(index < 0) return false;
+            
+            changeVideoTo(videoId, videoList[
+                (index+1)%videoList.length
+            ]);
+        }
+
+        function playPreviousVideo(videoId, videoList){
+            let v = document.getElementById(videoId);
+            let index = videoList.findIndex(function(e){
+                console.log("comparing " + e + " v. " + v.children[0].getAttribute("src"));
+                return e == v.children[0].getAttribute("src");
+            });
+
+            //exception handling
+            if(index < 0) return false;
+            
+            changeVideoTo(videoId, videoList[
+                Math.abs((index-1)%videoList.length)
+            ]);
+        }
+
+        function changeVideoTo(videoId, videoPath) {
+            let v = document.getElementById(videoId);
+            v.children[0].src = videoPath;
+            v.load();
+            v.oncanplay = function () {
+                this.play();
+                v.oncanplay = null; //init the event
+            };
+        }
+    </script>
+</body>
+
+</html>
