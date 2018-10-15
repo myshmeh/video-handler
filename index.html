@@ -15,7 +15,7 @@
     <!-- start of video section -->
     <div id="video-wrapper1" class="container">
         <div class="row">
-            <video id="video" width="640" height="480" controls>
+            <video id="video" width="640" height="480" index="-1" controls>
                 <source src="" type="video/mp4">
             </video>
         </div>
@@ -31,7 +31,7 @@
                     <th scope="col">Table of Contents</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="toc-body">
                 <tr onclick="video.changeTo(0)">
                     <th scope="row">1</th>
                     <td>Introduction</td>
@@ -52,9 +52,14 @@
     <script>
         // == video handling class (DO NOT EDIT) ==
         class VideoHandler{
-            constructor(videoId, videoList){
+            constructor(videoId, videoList, playlist){
                 this.videoId = videoId;
                 this.videoList = videoList;
+                this.playlist = playlist;
+
+                // init playlist object 
+                this.tocBody = document.getElementById('toc-body');
+                this.tocBody.innerHTML = this.generateToc();
 
                 // init video object
                 this.video = document.getElementById(this.videoId);
@@ -63,54 +68,99 @@
                 this.video.setAttribute("height", this.video.parentElement.offsetHeight);
                 let vhandler = this;
                 this.video.onended = function(){
-                    vhandler.playNext();
+                    vhandler.playNextVideo();
                 }
+
+                let tocBodyTmp = this.tocBody;
                 this.video.ontimeupdate = function(){
-                    //later.. to bg-color the ToC.
-                    //also, enable playnext to the next playlist (playlist is a set of breakpoints where editor wants to play)
+                    console.log(this.children[0].getAttribute("src"));
+                    let onSpotIndex = -1;
+                    for(let i=playlist.length-1; i>=0; i--){
+                        if(this.children[0].getAttribute("src") == playlist[i].videoPath){
+                            let onSpot = this.currentTime > playlist[i].startTime;
+                            if(onSpot){
+                                onSpotIndex = i;
+                                break;
+                            }
+                        }
+                    }
+
+                    // init toc bg-color
+                    let tocTrs = tocBodyTmp.getElementsByClassName("tr-main");
+                    for(let i=0; i<tocTrs.length; i++){
+                        tocTrs[i].setAttribute("style", "background-color:#fff;");
+                    }
+                    // hightlight current play
+                    if(onSpotIndex != -1){
+                        tocBodyTmp.getElementsByClassName("tr-main")[onSpotIndex].setAttribute("style", "background-color: #fee;");
+                        this.setAttribute("index", onSpotIndex);
+                    }
                 }
+            }
+
+            generateToc(){
+                let result = "";
+                for(let i=0; i<playlist.length; i++){
+                    result += 
+                            "<tr class=\"tr-main\" onclick=\"video.changeTo("+i+")\">"+
+                                "<th scope=\"row\">"+(i+1)+"</th>"+
+                            "<td>"+playlist[i].title+"</td>";
+                }
+
+                return result;
+            }
+
+            playNextVideo(){
+                console.log("later playnextvideo()");
             }
             
             playNext(){
                 let v = this.video;
-                let index = this.videoList.findIndex(function(e){
+                let index = this.playlist.findIndex(function(e, i){
                     let c = v.children[0];
-                    return e == c.getAttribute("src");
+                    let playlistIndex = v.getAttribute("index");
+                    return (e.videoPath == c.getAttribute("src")) && (i == playlistIndex);
                 });
 
                 //exception handling
                 if(index < 0) return false;
                 
-                this.changeTo((index+1) % this.videoList.length);
+                index += (index == this.playlist.length-1) ? 0 : 1;
+                this.changeTo(index);
             }
 
             playPrevious(){
                 let v = this.video;
-                let index = this.videoList.findIndex(function(e){
+                let playlistIndex = v.getAttribute("index");
+                let index = this.playlist.findIndex(function(e, i){
                     let c = v.children[0];
-                    return e == c.getAttribute("src");
+                    return (e.videoPath == c.getAttribute("src")) && (i == playlistIndex);
                 });
 
                 //exception handling
                 if(index < 0) return false;
                 
-                this.changeTo( Math.abs((index-1) % this.videoList.length) );
+                index -= (index == 0) ? 0 : 1;
+                this.changeTo(index);
             }
 
-            changeTo(videoIndex, time = 0){
-                this.video.children[0].src = this.videoList[videoIndex];
+            changeTo(playlistIndex){
+                this.video.setAttribute("index", playlistIndex);
+                this.video.children[0].src = this.playlist[playlistIndex].videoPath;
                 this.video.load();
-                this.video.currentTime = time;
+                this.video.currentTime = this.playlist[playlistIndex].startTime;
                 this.video.oncanplay = function () {
                     this.play();
                 };
             }
 
-            changeToNoAutoplay(videoIndex, time = 0){
-                this.video.children[0].src = this.videoList[videoIndex];
+            changeToNoAutoplay(playlistIndex){
+                this.video.setAttribute("index", playlistIndex);
+                this.video.children[0].src = this.playlist[playlistIndex].videoPath;
                 this.video.load();
-                this.video.currentTime = time;
-                this.video.oncanplay = function(){};
+                this.video.currentTime = this.playlist[playlistIndex].startTime;
+                this.video.oncanplay = function () {
+                };
             }
         }
 
@@ -121,10 +171,18 @@
             'videos/video1.mp4'
         ];
 
+        const playlist = [
+            {videoPath: videos[0], startTime: 0, title: 'Introduction'},
+            {videoPath: videos[0], startTime: 5, title: '|| hey'},
+            {videoPath: videos[0], startTime: 10, title: '|| how are you'},
+            {videoPath: videos[1], startTime: 0, title: 'Remarks'},
+            {videoPath: videos[1], startTime: 3, title: '|| good'}
+        ];
+
         // step2. setup video with:
         //      1. video id name
         //      2. video list
-        let video = new VideoHandler('video', videos);
+        let video = new VideoHandler('video', videos, playlist);
     </script>
 </body>
 
