@@ -17,13 +17,13 @@
     <!-- start of video section -->
     <div id="video-wrapper1" class="container"></div>
     <script>
-        // == #EDIT_HERE ==
-        // step1. declare video list (optional)
+        // step0. declare video list (optional)
         const videos = [
             'videos/video0.mp4',
             'videos/video1.mp4'
         ];
 
+        // step1. declare playlist array
         const playlist = [
             {videoPath: videos[0], startTime: 0, index:'1', title: 'Introduction'},
             {videoPath: videos[0], startTime: 5, index:'fwe', title: '|| hey'},
@@ -33,7 +33,7 @@
         ];
 
         // step2. setup video with:
-        //      1. video wrapper id name
+        //      1. video player id name
         //      2. playlist
         let video = new VideoHandler('video-wrapper1', playlist);
     </script>
