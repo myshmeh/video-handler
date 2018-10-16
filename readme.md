@@ -35,7 +35,7 @@ const playlist_name = [
         videoPath: 'PATH/TO/video.mp4', //file path to the video
         startTime: 20, //time(sec.) of the video to play
         index: '1', //index of the content
-        title: 'Introcution' //title of the content
+        title: 'Introduction' //title of the content
     },
 ];
 ```
