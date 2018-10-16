@@ -28,7 +28,7 @@ or
 ```
 
 ## Step2. create a table of contents (or playlist)
-inside ```script``` tag, create a playlist object as follows.
+inside ```script``` tag, create an array of playlist objects as follows.
 ```javascript
 const playlist_name = [
     {
