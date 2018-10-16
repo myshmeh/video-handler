@@ -1,7 +1,7 @@
-# VideoHandler.js
+# VideoHandler.js :tv:
 VideoHandler.js lets you create a video player with table of contents easily.
 
-# Installation Guide
+# Installation Guide :beer:
 ## CSS Dependency
 please paste the following tag to include Bootstrap4 for a better visualization.
 ```html
@@ -33,7 +33,7 @@ inside ```script``` tag, create a playlist object as follows.
 const playlist_name = [
     {
         videoPath: 'PATH/TO/video.mp4', //file path to the video
-        startTime: 20, //on which time(sec.) of the video to play
+        startTime: 20, //time(sec.) of the video to play
         index: '1', //index of the content
         title: 'Introcution' //title of the content
     },
@@ -45,4 +45,4 @@ pass the id name of the div tag in Step2 and the playlist in Step3 as parameters
 ```javascript
 let video = new VideoHandler('video-wrapper', playlist_name);
 ```
-Now you should see the video player with TOC on your page :beers:
+now you should see the video player with TOC on your page :beers:
