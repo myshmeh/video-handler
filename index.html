@@ -8,182 +8,60 @@
     <title>video handler</title>
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+    <script src="js/videoHandler.js"></script>
 </head>
 
 <body>
     <h1>Video Handler</h1>
+
     <!-- start of video section -->
-    <div id="video-wrapper1" class="container">
-        <div class="row">
-            <video id="video" width="640" height="480" index="-1" controls>
-                <source src="" type="video/mp4">
-            </video>
-        </div>
-        <div class="row">
-            <button class="col-6 btn btn-warning" onclick="video.playPrevious()">previous</button>
-            <button class="col-6 btn btn-info" onclick="video.playNext()">next</button>
-        </div>
-    
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Table of Contents</th>
-                </tr>
-            </thead>
-            <tbody id="toc-body">
-                <tr onclick="video.changeTo(0)">
-                    <th scope="row">1</th>
-                    <td>Introduction</td>
-                </tr>
-                <tr onclick="video.changeTo(0, 10)">
-                    <th scope="row">1-1</th>
-                    <td>|| remark</td>
-                </tr>
-                <tr onclick="video.changeTo(1)">
-                    <th scope="row">2</th>
-                    <td>Definitions</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <!-- end of video section -->
-
+    <div id="video-wrapper1" class="container"></div>
     <script>
-        // == video handling class (DO NOT EDIT) ==
-        class VideoHandler{
-            constructor(videoId, videoList, playlist){
-                this.videoId = videoId;
-                this.videoList = videoList;
-                this.playlist = playlist;
-
-                // init playlist object 
-                this.tocBody = document.getElementById('toc-body');
-                this.tocBody.innerHTML = this.generateToc();
-
-                // init video object
-                this.video = document.getElementById(this.videoId);
-                this.changeToNoAutoplay(0);
-                this.video.setAttribute("width", this.video.parentElement.offsetWidth);
-                this.video.setAttribute("height", this.video.parentElement.offsetHeight);
-                let vhandler = this;
-                this.video.onended = function(){
-                    vhandler.playNextVideo();
-                }
-
-                let tocBodyTmp = this.tocBody;
-                this.video.ontimeupdate = function(){
-                    console.log(this.children[0].getAttribute("src"));
-                    let onSpotIndex = -1;
-                    for(let i=playlist.length-1; i>=0; i--){
-                        if(this.children[0].getAttribute("src") == playlist[i].videoPath){
-                            let onSpot = this.currentTime > playlist[i].startTime;
-                            if(onSpot){
-                                onSpotIndex = i;
-                                break;
-                            }
-                        }
-                    }
-
-                    // init toc bg-color
-                    let tocTrs = tocBodyTmp.getElementsByClassName("tr-main");
-                    for(let i=0; i<tocTrs.length; i++){
-                        tocTrs[i].setAttribute("style", "background-color:#fff;");
-                    }
-                    // hightlight current play
-                    if(onSpotIndex != -1){
-                        tocBodyTmp.getElementsByClassName("tr-main")[onSpotIndex].setAttribute("style", "background-color: #fee;");
-                        this.setAttribute("index", onSpotIndex);
-                    }
-                }
-            }
-
-            generateToc(){
-                let result = "";
-                for(let i=0; i<playlist.length; i++){
-                    result += 
-                            "<tr class=\"tr-main\" onclick=\"video.changeTo("+i+")\">"+
-                                "<th scope=\"row\">"+(i+1)+"</th>"+
-                            "<td>"+playlist[i].title+"</td>";
-                }
-
-                return result;
-            }
-
-            playNextVideo(){
-                console.log("later playnextvideo()");
-            }
-            
-            playNext(){
-                let v = this.video;
-                let index = this.playlist.findIndex(function(e, i){
-                    let c = v.children[0];
-                    let playlistIndex = v.getAttribute("index");
-                    return (e.videoPath == c.getAttribute("src")) && (i == playlistIndex);
-                });
-
-                //exception handling
-                if(index < 0) return false;
-                
-                index += (index == this.playlist.length-1) ? 0 : 1;
-                this.changeTo(index);
-            }
-
-            playPrevious(){
-                let v = this.video;
-                let playlistIndex = v.getAttribute("index");
-                let index = this.playlist.findIndex(function(e, i){
-                    let c = v.children[0];
-                    return (e.videoPath == c.getAttribute("src")) && (i == playlistIndex);
-                });
-
-                //exception handling
-                if(index < 0) return false;
-                
-                index -= (index == 0) ? 0 : 1;
-                this.changeTo(index);
-            }
-
-            changeTo(playlistIndex){
-                this.video.setAttribute("index", playlistIndex);
-                this.video.children[0].src = this.playlist[playlistIndex].videoPath;
-                this.video.load();
-                this.video.currentTime = this.playlist[playlistIndex].startTime;
-                this.video.oncanplay = function () {
-                    this.play();
-                };
-            }
-
-            changeToNoAutoplay(playlistIndex){
-                this.video.setAttribute("index", playlistIndex);
-                this.video.children[0].src = this.playlist[playlistIndex].videoPath;
-                this.video.load();
-                this.video.currentTime = this.playlist[playlistIndex].startTime;
-                this.video.oncanplay = function () {
-                };
-            }
-        }
-
         // == #EDIT_HERE ==
-        // step1. declare video list
+        // step1. declare video list (optional)
         const videos = [
             'videos/video0.mp4',
             'videos/video1.mp4'
         ];
 
         const playlist = [
-            {videoPath: videos[0], startTime: 0, title: 'Introduction'},
-            {videoPath: videos[0], startTime: 5, title: '|| hey'},
-            {videoPath: videos[0], startTime: 10, title: '|| how are you'},
-            {videoPath: videos[1], startTime: 0, title: 'Remarks'},
-            {videoPath: videos[1], startTime: 3, title: '|| good'}
+            {videoPath: videos[0], startTime: 0, index:'1', title: 'Introduction'},
+            {videoPath: videos[0], startTime: 5, index:'fwe', title: '|| hey'},
+            {videoPath: videos[0], startTime: 10, index:'', title: '|| how are you'},
+            {videoPath: videos[1], startTime: 0, index:'2', title: 'Remarks'},
+            {videoPath: videos[1], startTime: 3, index:'', title: '|| good'}
         ];
 
         // step2. setup video with:
-        //      1. video id name
-        //      2. video list
-        let video = new VideoHandler('video', videos, playlist);
+        //      1. video wrapper id name
+        //      2. playlist
+        let video = new VideoHandler('video-wrapper1', playlist);
     </script>
+    <!-- end of video section -->
+
+    <!-- start of video section -->
+    <div id="video-wrapper2" class="container"></div>
+    <script>
+        // == #EDIT_HERE ==
+        // step1. declare video list (optional)
+        const videos2 = [
+            'videos/video1.mp4',
+            'videos/video0.mp4'
+        ];
+
+        const playlist2 = [
+            {videoPath: videos2[0], startTime: 0, index:'fqwd1', title: '--'},
+            {videoPath: videos2[0], startTime: 2, index:'', title: 'fwe'},
+            {videoPath: videos2[1], startTime: 12, index:'2', title: 'jhgf'},
+            {videoPath: videos2[1], startTime: 23, index:'', title: 'fjhg'}
+        ];
+
+        // step2. setup video with:
+        //      1. video wrapper id name
+        //      2. playlist
+        let video2 = new VideoHandler('video-wrapper2', playlist2);
+    </script>
+    <!-- end of video section -->
 </body>
 
 </html>
